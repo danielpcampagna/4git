@@ -1,0 +1,26 @@
+## watching files 
+watch -n 1 -d find .git/objects/ .git/refs/
+
+## without watching files
+make
+make exp01
+git cat-file --batch-check --batch-all-objects
+4git-pseudonymise John
+git cat-file --batch-check --batch-all-objects
+git log --stat 4bbf6b558b1eac1ca8390628eec75d3edc2bac97
+
+## general
+cd .. && cd running/
+clear
+4git init .
+4git log
+4git pseudonymise John user01
+4git log
+4git checkout 281d0d848afd41ad0ee7644686c5de7838e6f7dd
+4git log
+4git checkout 4bbf6b558b1eac1ca8390628eec75d3edc2bac97
+4git log
+4git checkout master
+4git log
+4git restore John
+4git log

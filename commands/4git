@@ -1,0 +1,26 @@
+#!/bin/bash
+# Usage: 4git
+
+# improve this
+if [ ! -d ".4git/" -a $1 != "init" ]; then
+  echo "fatal: not a 4git repository."
+  echo "Run '4git init .' to use it."
+  exit 1;
+fi
+
+if [ $# -le 0 ]; then
+  4git-help
+else
+  found=0
+  
+  for script in $(compgen -c | grep 4git*); do
+    cmd=$(echo "$script" | cut -c6-)
+    if [ $1 = "$cmd" ]; then
+      found=1
+      $script ${@:2}
+    fi
+  done
+  [ $found -eq 0 ] && git $1 ${@:2};
+fi
+
+exit 0;

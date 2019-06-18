@@ -1,0 +1,23 @@
+#!/bin/bash
+
+create_dir()
+{
+  [ -d "$dirname" ] && rm -rf "$dirname/"
+  mkdir -p "$dirname/"
+}
+
+if [ ! -d ".4git/" ]; then
+    root=".4git"
+    dirname_backup="$root/backups/$name"
+    dirname=$dirname_backup
+    create_dir;
+    echo "Initialized empty 4Git repository in $(pwd)/.4git/"
+else
+    echo "Reinitialized existing 4Git repository in $(pwd)/.4git/"
+fi
+
+if [ ! -d ".git/" ]; then
+    git init $@
+fi
+
+exit 0;

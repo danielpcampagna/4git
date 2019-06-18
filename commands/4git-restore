@@ -1,0 +1,62 @@
+#!/bin/bash
+
+root=".4git"
+# [ $# -lt 3 ] && 4git-restore-help && exit 1;
+[ $# -lt 1 ] && 4git-restore-help && exit 1;
+
+name=$1
+# commitmap=$2
+# commitdata=$3
+
+dirname_backup="$root/backups/$name"
+
+[ ! -d $dirname_backup ] && echo "There is no backups for $name"
+
+# function hash2object(){
+#   echo "params: $@"
+#   local tmp
+#   tmp="$(echo "$1" | cut -c3-)"
+#   # echo ">> hash1: $tmp"
+#   echo "find .git/objects -type f | grep $tmp"
+#   return "$(find .git/objects -type f | grep $tmp)"
+# }
+
+### Remove pseuonymous commits
+input="$root/commitmap"
+tmp_commitmap="$root/~commitmap"
+echo "" > $tmp_commitmap
+
+# echo "reading $input.."
+
+while IFS= read -r line
+do
+
+  IFS=' '
+  read -ra info <<< "$line"
+
+  original_hash=${info[0]}
+  pseudonymous_hash=${info[1]}
+  
+  tmp=$(echo "$original_hash" | cut -c3-)
+  original_file=$(find .git/objects -type f | grep $tmp)
+  tmp=$(echo "$pseudonymous_hash" | cut -c3-)
+  pseudonymous_file=$(find .git/objects -type f | grep $tmp)
+  
+  if [ -e "$dirname_backup/$original_file" ]; then
+    echo "O diretorio $dirname_backup/$original_file existe"
+    # echo "$pseudonymous_file"
+    # echo "$original_file"
+    # echo "cp $dirname_backup/$original_file $original_file"
+    cp "$dirname_backup/$original_file" $original_file
+    # echo "rm -rf $pseudonymous_file"
+    rm -rf $pseudonymous_file
+  else
+    echo "O diretorio $dirname_backup/$original_file não existe"
+    echo $line >> $tmp_commitmap
+  fi
+
+
+done < "$input"
+
+cp $tmp_commitmap $input
+rm -rf $tmp_commitmap

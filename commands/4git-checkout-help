@@ -1,0 +1,7 @@
+#!/bin/bash
+# Usage: git pseudonymise --help
+
+echo "Use: 4git checkout <branch>"
+echo
+
+exit 0;

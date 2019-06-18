@@ -1,0 +1,38 @@
+#!/bin/bash
+
+root=".4git"
+
+[ $# -le 0 ] && 4git-checkout-help && exit 1;
+
+input="$root/commitmap"
+
+dst=$1
+if [ -e ".git/refs/head/$dst" ]; then
+  dst="$(cat .git/refs/head/$dst)"
+elif [ -e ".git/refs/tags/$dst" ]; then
+  dst="$(cat .git/refs/tags/$dst)"
+fi
+
+set -- "$dst" "${@:2}"
+
+while IFS= read -r line
+do
+
+  IFS=' '
+  read -ra info <<< "$line" # str is read into an array as tokens separated by IFS
+  hash=${info[0]}
+  new_hash=${info[1]}
+  
+  if [ "$1" = "$hash" ]; then
+    set -- "$new_hash" "${@:2}"
+    echo "relative to $1"
+    break;
+  fi
+
+done < "$input"
+
+echo "git checkout $@"
+echo
+git checkout $@
+
+exit 0;

@@ -1,0 +1,16 @@
+#!/bin/bash
+
+git help $@
+echo
+echo "Use 4git to forget an user information:"
+echo "   checkout       It's a pre-hook that invokes the git checkout at the end."
+echo "                  Useful for updating the Worktree by controlling the correct"
+echo "                  SHA-1 commit object, keeping the git repository consistent."
+echo "   init           Create an empty 4Git repository or reinitialize an existing one."
+echo "   pseudonymise   Create pseudonymou-commits from original-commits that were"
+echo "                  created/commmited by an author."
+echo "   restore        Restore this repository by removing all the pseudonymous-commits"
+echo "                  and retrieving the original-commits values."
+echo
+
+exit 0;

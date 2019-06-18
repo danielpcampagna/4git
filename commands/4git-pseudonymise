@@ -1,0 +1,140 @@
+#!/bin/bash
+# Usage: git pseudonymous
+
+create_dir()
+{
+  [ -d "$dirname" ] && rm -rf "$dirname/"
+  mkdir -p "$dirname/"
+}
+
+[ $# -ne 2 ] && 4git-pseudonymise-help && exit 1;
+  
+name=$1
+pseudonymous=$2 # automatize this!
+
+if [ -e ".git/refs/heads/master" ]; then
+  hash="$(cat .git/refs/heads/master)"
+  cmd="$(git log -n 1 --pretty=format:'%an %ae %cn %ce' $hash | grep $name)"
+  if [ ! -z "$cmd" ]; then
+    echo "It is not recommended to create a pseudo-commit from the commit referenced by master."
+    echo "Please create another commit using another username/email and try again."
+    echo
+    exit 1;
+  fi
+fi
+
+root=".4git"
+dirname_backup="$root/backups/$name"
+dirname=$dirname_backup
+create_dir;
+
+git log --pretty=format:"%H %T %P %an %ae %cn %ce" | grep "$name" > "$root/commit"
+input="$root/commit"
+
+while IFS= read -r line
+do
+  IFS=' '
+  read -ra info <<< "$line" # str is read into an array as tokens separated by IFS
+
+  hash=${info[0]}
+  tree=${info[1]}
+  parent=${info[2]}
+  a_date=$(git log -n 1 --pretty=format:%ad $hash)
+  c_date=$(git log -n 1 --pretty=format:%cd $hash)
+  msg=$(git log -n 1 --pretty=format:%s $hash)
+
+  if [ ${#info[@]} -lt 7 ]; then
+    # First commit
+    parent=""
+  fi
+
+  # echo "msg   = $msg"
+  # echo "hash  = $hash"
+  # echo "parent= $parent"
+  # echo "tree  = $tree"
+  # echo
+  ### Create new commit object
+  #git commit-tree
+  
+  cmd_commit=""
+  # var_commit=""
+  ### Precisa colocar na mesma linha onde o comando é criado
+  # tenta ir concatenando aos poucos.
+  # Facilita a leitura!
+  # cmd_commit="GIT_AUTHOR_NAME=\"$pseudonymous\""
+  # cmd_commit="$cmd_commit GIT_AUTHOR_EMAIL=\"$pseudonymous\""
+  # cmd_commit="$cmd_commit GIT_COMMITTER_NAME=\"$pseudonymous\""
+  # cmd_commit="$cmd_commit GIT_COMMITTER_EMAIL=\"$pseudonymous\""
+
+  # GIT_AUTHOR_NAME="$pseudonymous" GIT_AUTHOR_EMAIL="$pseudonymous" GIT_COMMITTER_NAME="$pseudonymous" GIT_COMMITTER_EMAIL="$pseudonymous"
+  
+  # var_commit=(GIT_AUTHOR_NAME="$pseudonymous")
+  # var_commit=(${var_commit[@]} GIT_AUTHOR_EMAIL="$pseudonymous")
+  # var_commit=(${var_commit[@]} GIT_COMMITTER_NAME="$pseudonymous")
+  # var_commit=(${var_commit[@]} GIT_COMMITTER_EMAIL="$pseudonymous")
+  # date="Wed Jun 19 06:00:00 2019 -0300"
+  
+  # cmd_commit=(${cmd_commit[@]} GIT_AUTHOR_DATE="\"$date\"")
+  # cmd_commit=(${cmd_commit[@]} GIT_COMMITTER_DATE="\"$date\"")
+  # cmd_commit=(${cmd_commit[@]} git commit-tree $tree)
+  # # cmd_commit="git commit-tree $tree -m '[New] $msg'"
+  # # cmd_commit="cmd_commit git commit-tree $tree"
+  
+  if [ -z $parent ];
+  then
+  # cmd_commit=(${cmd_commit[@]} -p $parent)
+    new_hash=$(GIT_AUTHOR_NAME="$pseudonymous" GIT_AUTHOR_EMAIL="$pseudonymous" GIT_COMMITTER_NAME="$pseudonymous" GIT_COMMITTER_EMAIL="$pseudonymous" GIT_AUTHOR_DATE="$a_date" GIT_COMMITTER_DATE="$c_date" git commit-tree $tree -m "[New] $msg")
+  else
+    new_hash=$(GIT_AUTHOR_NAME="$pseudonymous" GIT_AUTHOR_EMAIL="$pseudonymous" GIT_COMMITTER_NAME="$pseudonymous" GIT_COMMITTER_EMAIL="$pseudonymous" GIT_AUTHOR_DATE="$a_date" GIT_COMMITTER_DATE="$c_date" git commit-tree $tree -m "[New] $msg" -p $parent)
+  fi
+  # cmd_commit=(${cmd_commit[@]} -m "[New] $msg")
+  # echo ">>>"
+  # # echo "$cmd_commit"
+  # echo "${cmd_commit[@]}"
+  # # echo
+  # # echo "$($cmd_commit)"
+  # # echo
+  # # echo "$cmd_commit"
+  # echo "<<<"
+  # new_hash=$("${cmd_commit[@]}")
+  # # new_hash=$($cmd_commit)
+
+  # echo
+  echo "$hash > $new_hash"
+  echo "$hash $new_hash" >> "$root/commitmap"
+  # ### clone content from new_hash to hash
+  tmp=$(echo "$hash" | cut -c3-)
+  # echo ">> hash1: $tmp"
+  file_hash=$(find .git/objects -type f | grep $tmp)
+  # echo ">> file1: $file_hash"
+  # echo
+  tmp=$(echo "$new_hash" | cut -c3-)
+  # echo ">> hash2: $tmp"
+  file_new_hash=$(find .git/objects -type f | grep $tmp)
+  # echo ">> file2: $file_hash"
+  # echo
+
+  ## backup
+  # echo "$file_hash"
+  # echo 
+  # mkdir -p $("$dirname_backup/.git/objects/${hash:0:2}")
+  # cp -r $file_hash > $("$dirname_backup/$file_hash")
+  # echo "cp -r $file_hash > $("$dirname_backup/$file_hash")"
+  # rsync -a $file_hash $("$dirname_backup/$file_hash")
+  cp --parents $file_hash $dirname_backup
+
+  # cat $file_hash > "$dirname_backup/$file_hash"
+  
+  # echo "rm -f $file_hash"
+  rm -f $file_hash
+  # echo "cat $file_new_hash > $file_hash"
+  cat $file_new_hash > $file_hash
+
+
+  ### Create a refs object
+  #echo "git update-ref $info ${info[1]}"
+
+done < "$input"
+echo
+# rm -rf "$root"
+exit 0;
