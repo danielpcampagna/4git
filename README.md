@@ -25,14 +25,14 @@ After installation, you will see the explanation by typing `4git help`.
 
 ## Development setup
 
-For contribuite with project, we offer some tools to help you.
+To contribute to the project, we offer some tools:
 
-1. For create a new command:
+1. creating a new command:
 
 You just need to add a file in `commands/` folder git pattern `4git-[newcommand]`.
 For now, you will need type all commands in [shell script](https://en.wikipedia.org/wiki/Shell_script).
 
-2. For test your commands:
+2. testing your commands:
 
 You can use the `experiments/`, which correspond to possible contexts of Git repositories.
 
