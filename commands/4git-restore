@@ -43,7 +43,7 @@ do
   pseudonymous_file=$(find .git/objects -type f | grep $tmp)
   
   if [ -e "$dirname_backup/$original_file" ]; then
-    echo "O diretorio $dirname_backup/$original_file existe"
+    # echo "O diretorio $dirname_backup/$original_file existe"
     # echo "$pseudonymous_file"
     # echo "$original_file"
     # echo "cp $dirname_backup/$original_file $original_file"
@@ -51,7 +51,7 @@ do
     # echo "rm -rf $pseudonymous_file"
     rm -rf $pseudonymous_file
   else
-    echo "O diretorio $dirname_backup/$original_file não existe"
+    # echo "O diretorio $dirname_backup/$original_file não existe"
     echo $line >> $tmp_commitmap
   fi
 
