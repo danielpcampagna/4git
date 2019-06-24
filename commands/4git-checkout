@@ -23,7 +23,7 @@ do
   hash=${info[0]}
   new_hash=${info[1]}
   
-  if [ "$1" = "$hash" ]; then
+  if [[ $hash == $1* ]]; then
     set -- "$new_hash" "${@:2}"
     echo "relative to $1"
     break;
