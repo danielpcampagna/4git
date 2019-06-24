@@ -3,7 +3,7 @@ watch -n 1 -d find .git/objects/ .git/refs/
 
 ## without watching files
 make
-make exp01
+make exp N="01"
 git cat-file --batch-check --batch-all-objects
 4git-pseudonymise John
 git cat-file --batch-check --batch-all-objects
